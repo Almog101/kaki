@@ -1,17 +1,14 @@
-import random
+from secrets import token_hex
+from card import *
 
 def get_uniqe_id(rooms):
     """
     Gets unique ID for a room
     """
-    id = random.randint(1000,10000)
     while True:
-        room_id_exists = False
-        for room in rooms:
-            if room.id == id:
-                room_id_exists = True
-                break
-        if not room_id_exists:
+        id = token_hex(10)
+
+        if not room_exists(rooms, id):
             return id
 
 def room_exists(rooms, room_id):
@@ -26,6 +23,7 @@ def room_exists(rooms, room_id):
 class Room:
     def __init__(self, id):
         self.id = id
+        self.deck = create_deck()
 
     def __repr__(self):
-        return f"Room {self.id}"
+        return f"Room: id - {self.id}"

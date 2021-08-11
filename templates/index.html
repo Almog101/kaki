@@ -5,13 +5,20 @@
 {% block content %}
 <h1>Kaki - knock of Taki (Jewish Version of Uno)</h1>
 <a href="/create-room">Create Room</a>
-<!--
+
+<br><br>
+
 <div id="room-list">
-  <ul>
-    <li><a href="/room/1">1</a></li>
-    <li><a href="/room/2">2</a></li>
-    <li><a href="/room/3">3</a></li>
-  </ul>
-</div>
--->
+  <h2>Room List</h2>
+
+  {% if rooms|length > 0 %}
+    <ul>
+    {% for room in rooms %}
+      <li><a href="/room/{{room.id}}">{{room.id}}</a></li>
+    {% endfor %}
+    </ul>
+  {% else %}
+      <p>No rooms available</p>
+  {% endif %}
+  </div>
 {% endblock %}
