@@ -33,8 +33,10 @@ def create_room():
 @socketio.on('join')
 def join(data):
     room_id = data['room']
+    username = data['username']
+
     join_room(room_id)
-    emit("joined", f"user joined room {room_id}", to=room_id)
+    emit("joined", f"{username} joined room {room_id}", to=room_id)
 
 @socketio.on('message')
 def handle_message(data):

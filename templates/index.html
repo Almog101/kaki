@@ -4,8 +4,13 @@
 
 {% block content %}
 <h1>Kaki - knock of Taki (Jewish Version of Uno)</h1>
+
+<input type="text" id="username" name="username" maxlength="10" placeholder="Enter Username">
+
 <a href="/create-room">Create Room</a>
 
+<br><br>
+<a href="#">This</a>
 <br><br>
 
 <div id="room-list">
@@ -20,5 +25,20 @@
   {% else %}
       <p>No rooms available</p>
   {% endif %}
-  </div>
+</div>
+
+<script type="text/javascript" charset="utf-8">
+  const source = document.getElementById('username');
+
+  source.value = localStorage.getItem("username");
+
+  const inputHandler = function(e) {
+    localStorage.setItem("username", e.target.value);
+  }
+
+  source.addEventListener('input', inputHandler);
+  source.addEventListener('propertychange', inputHandler); // for IE8
+  // Firefox/Edge18-/IE9+ don’t fire on <select><option>
+  // source.addEventListener('change', inputHandler);
+</script>
 {% endblock %}
