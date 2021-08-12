@@ -31,5 +31,8 @@ class Card:
         self.color = color
         self.number = number
 
+    def to_json(self):
+        return {'color': self.color, 'number': self.number}
+
     def __repr__(self):
         return f"Card - {self.color} {self.number}"

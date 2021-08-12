@@ -37,19 +37,28 @@ def create_room():
 def join(data):
     room_id = data['room']
     username = data['username']
+
+    if 'id' not in data:
+        return -1
+
+    id = data['id']
+
     if room_id not in rooms:
         return -1
 
     room = rooms[room_id]
-
-    id = get_uniqe_id(room.players, NAME_ID_LENGTH)
     new_player = Player(username, id)
     new_player.hand = room.deck.get_cards(STARTING_CARDS)
-
     room.players[id] = new_player
 
     join_room(room_id)
+
+
     emit("joined", {"username": username, "id": id}, to=room_id)
+
+    for card in new_player.hand:
+        emit("add-to-hand", card.to_json())
+
 
 @socketio.on('message')
 def handle_message(data):
