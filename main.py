@@ -60,6 +60,14 @@ def join(data):
         emit("add-to-hand", card.to_json())
 
 
+@socketio.on('play-card')
+def play_card(data):
+    color = data['color']
+    number = data['number']
+    room_id = data['room']
+
+    emit("add-to-stash", {"color": color, "number": number}, to=room_id)
+
 @socketio.on('message')
 def handle_message(data):
     print('received message: ' + str(data))
