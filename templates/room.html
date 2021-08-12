@@ -3,15 +3,20 @@
 {% block title %}Room{% endblock %}
 
 {% block content %}
-<h1>Room {{room_id}}</h1>
+<h1>Room {{room.id}}</h1>
 <button type="button" onclick="send('message', 'this is my message');">Send message</button>
 <br>
 <a href="/">Go Back</a>
+<div id="players">
+{% for player in room.players.values() %}
+  <p>{{player.username}}#{{player.id}}<p/>
+{% endfor %}
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
 <script type="text/javascript" charset="utf-8">
     var socket = io();
-    var roomId = "{{room_id}}";
+    var roomId = "{{room.id}}";
     var username = localStorage.getItem("username");
 
     socket.on('connect', function() {
@@ -20,7 +25,10 @@
 
 
     socket.on('joined', function(data) {
-      console.log(data);
+      var p = document.createElement('p');
+      p.innerHTML = data["username"]+'#'+data["id"];
+      document.getElementById("players").appendChild(p);
+
     });
 
     function send(head, data){

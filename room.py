@@ -1,29 +1,28 @@
 from secrets import token_hex
 from card import *
 
-def get_uniqe_id(rooms):
+def get_uniqe_id(dict, n):
     """
-    Gets unique ID for a room
+    Generates unique ID from a dictionary of IDs of N length
     """
     while True:
-        id = token_hex(10)
+        id = token_hex(n)
 
-        if not room_exists(rooms, id):
+        if not id in dict:
             return id
 
-def room_exists(rooms, room_id):
-    """
-    Checks if room exists in a room list by its ID
-    """
-    for room in rooms:
-        if room.id == room_id:
-            return True
-    return False
+class Player:
+    def __init__(self, username, id):
+        self.id = id
+        self.username = username
+        self.hand = []
+
 
 class Room:
     def __init__(self, id):
         self.id = id
-        self.deck = create_deck()
+        self.deck = Deck()
+        self.players = {}
 
     def __repr__(self):
         return f"Room: id - {self.id}"
