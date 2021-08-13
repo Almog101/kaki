@@ -1,5 +1,4 @@
-
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, Response, jsonify
 from flask_socketio import SocketIO, send, emit, join_room, leave_room
 
 from room import *
@@ -9,19 +8,26 @@ NAME_ID_LENGTH = 4
 
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
 rooms = {}
 
+@app.route("/index")
 @app.route("/")
-def index():
-    return render_template("index.html", rooms=rooms)
+def main():
+    return jsonify(status=200, data="Hello User")
+
 
 @app.route("/room/<room_id>")
 def room(room_id):
     if not room_id in rooms:
-        return redirect(url_for("index"))
-    return render_template("room.html", room=rooms[room_id])
+        return Response(response="Room does not exist",status=400)
+    return jsonify(status=200, room=rooms[room_id].json()) #Response(response = str(rooms[room_id].to_json()), status=200) #, mimetype='application/json'
+
+@app.route("/get-rooms")
+def get_rooms():
+    if len(rooms) == 0:
+        return jsonify(status=404, data=[])
+    return jsonify(status=200, data = list(rooms.keys()))
 
 @app.route("/create-room")
 def create_room():
