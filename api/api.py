@@ -26,7 +26,7 @@ def room(room_id):
 @app.route("/get-rooms")
 def get_rooms():
     if len(rooms) == 0:
-        return jsonify(status=404, data=[])
+        return jsonify(status=404, data=[]) # no rooms created
     return jsonify(status=200, data = list(rooms.keys()))
 
 @app.route("/create-room")
@@ -35,9 +35,14 @@ def create_room():
     room = Room(id = id)
     rooms[id] = room
 
-    return redirect(url_for("room", room_id = id))
+    return jsonify(status=200, roomId=id)
 
 # SocketIO functions
+
+
+@socketio.on('connect')
+def connected():
+    print("Player connected")
 
 @socketio.on('join')
 def join(data):
