@@ -29,7 +29,7 @@ class Room:
         self.players = {}
 
     def json(self):
-        return {"id": self.id, "players": [player.json() for player in self.players]}
+        return {"id": self.id, "players": [player.json() for player in self.players.values()]}
 
     def __repr__(self):
         return f"Room: id - {self.id}"

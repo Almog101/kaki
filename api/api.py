@@ -8,7 +8,7 @@ NAME_ID_LENGTH = 4
 
 
 app = Flask(__name__)
-socketio = SocketIO(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 rooms = {}
 
 @app.route("/index")
@@ -20,9 +20,8 @@ def main():
 @app.route("/room/<room_id>")
 def room(room_id):
     if not room_id in rooms:
-        return Response(response="Room does not exist",status=400)
-    return jsonify(status=200, room=rooms[room_id].json()) #Response(response = str(rooms[room_id].to_json()), status=200) #, mimetype='application/json'
-
+        return jsonify(status=400, response="Room does not exist")
+    return jsonify(status=200, room=rooms[room_id].json())
 @app.route("/get-rooms")
 def get_rooms():
     if len(rooms) == 0:
@@ -39,11 +38,6 @@ def create_room():
 
 # SocketIO functions
 
-
-@socketio.on('connect')
-def connected():
-    print("Player connected")
-
 @socketio.on('join')
 def join(data):
     room_id = data['room']
@@ -57,13 +51,14 @@ def join(data):
     if room_id not in rooms:
         return -1
 
+    print("player joined room", room_id)
+
     room = rooms[room_id]
     new_player = Player(username, id)
     new_player.hand = room.deck.get_cards(STARTING_CARDS)
     room.players[id] = new_player
 
     join_room(room_id)
-
 
     emit("joined", {"username": username, "id": id}, to=room_id)
 
@@ -81,7 +76,11 @@ def play_card(data):
 
 @socketio.on('message')
 def handle_message(data):
+    room_id = data['roomId']
+    msg = data['msg']
+
     print('received message: ' + str(data))
+    emit("msg", {"msg":msg, "room_id":room_id}, to=room_id)
 
 
 if __name__ == '__main__':
