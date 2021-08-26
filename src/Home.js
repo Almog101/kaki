@@ -19,9 +19,14 @@ const Home =() => {
     <div>
     <Background/>
     <MainMenu/>
-    {(rooms === undefined) ? () => {<h1>Loading Rooms...</h1>} : rooms.data.map((room) => (
-      <Link key={room} to={`/room/${room}`}>{room}<br/></Link>
-    ))}
+    {(rooms === undefined) ? <h1>Loading Rooms...</h1> : (rooms.data.length == 0) ? <h1>No rooms available</h1> : rooms.data.map((room) => {
+      return (
+        <Link key={room} to={`/room/${room}`}>
+          <p>{room}</p>
+        </Link>
+      )
+    }
+    )}
 
     </div>
   );
