@@ -23,6 +23,7 @@ def room(room_id):
     if not room_id in rooms:
         return jsonify(status=400, response="Room does not exist")
     return jsonify(status=200, room=rooms[room_id].json())
+
 @app.route("/get-rooms")
 def get_rooms():
     if len(rooms) == 0:
@@ -31,7 +32,7 @@ def get_rooms():
 
 @app.route("/create-room")
 def create_room():
-    id = get_uniqe_id(rooms, 10)
+    id = get_uniqe_id(rooms, 5)
     room = Room(id = id)
     rooms[id] = room
 
