@@ -24,7 +24,7 @@ const Card = ({color, number}) => {
   }
 
   return (
-    <div class="card" onClick={() => {play()} } style={{backgroundColor: colors[color]}}>{number} {color}</div>
+    <div class="card" onClick={() => {play()} } style={{backgroundColor: colors[color]}}>{number}</div>
   )
 }
 
@@ -89,8 +89,10 @@ const Room = ({match, location}) => {
 
   return (
     <div>
-      <h1>Room {roomId}</h1>
-      <Link to="/">Go Back</Link>
+      <h1>Room #{roomId}</h1>
+      <Link id="home-button" to="/">
+         <img src="https://www.searchpng.com/wp-content/uploads/2019/02/Back-Arrow-Icon-PNG.png" alt='Go Back' width="150" height="150"/>
+      </Link>
 
       <div id="players">
         {players.map(player => {

@@ -1,6 +1,19 @@
+body{
+  background-color: #e4eddf;
+}
+
+#home-button{
+  position: fixed;
+  right: 1%;
+  top: 1%;
+}
+
 .player{
-  background-color:grey;
-  width: 400px;
+  background-color: #B9CBC0;
+  padding: 5px 15px;
+  width: 300px;
+  border-radius: 10px;
+
 }
 
 .player:hover{
@@ -10,14 +23,20 @@
 #hand{
   position: fixed;
   width: 100%;
-  bottom: 150px;
+  bottom: 20%;
 }
 
 .card{
   display:inline;
-  border: 1px solid #CCC;
-  padding: calc(125px) calc(65px);
+  padding: calc(125px/1.5) calc(85px/1.5);
   border-radius: 15px;
+  color: white;
+  font-size: 50px;
+}
+
+#stash{
+  position: absolute;
+  left: 50%;
 }
 
 .card:hover{
