@@ -4,15 +4,40 @@ import io from 'socket.io-client'
 import './css/Room.css';
 
 let socket
+let roomId
+let playerId;
+
+const Player = ({username, id}) => {
+  return (
+    <div class="player">
+      <p>{username}#{id}</p>
+      <p>Number of cards: ?</p>
+    </div>
+  )
+}
+
+const Card = ({color, number}) => {
+  const colors = {"Red": "#e5676b", "Green": "#a4ca7b", "Blue": "#009bd4", "Yellow": "#f9cd61"}
+
+  function play() {
+    socket.emit("play-card", {'id': playerId, 'room': roomId, 'color': color, 'number': number})
+  }
+
+  return (
+    <div class="card" onClick={() => {play()} } style={{backgroundColor: colors[color]}}>{number} {color}</div>
+  )
+}
+
 
 const Room = ({match, location}) => {
   const [room, setRoom] = useState();
-  const [messages, setMessages] = useState([]);
+  const [players, setPlayers] = useState([]);
+  const [hand, setHand] = useState([]);
+  const [stash, setStash] = useState({"color": "Red", "number": 4});
 
-  const roomId = match.params.id;
+  roomId = match.params.id;
 
   let count = 0;
-  let playerId;
   //fetch(`/room/${roomId}`).then(res => res.json().then(data => setRoom(data)))
 
   useEffect(() => {
@@ -24,46 +49,21 @@ const Room = ({match, location}) => {
     });
 
 
-    socket.on('msg', (data)=>{
-      console.log(count, data);
-      receivedMessage(data.msg);
-      count += 1;
+    socket.on('joined', function(data) {
+      console.log(`player ${data["username"]}#${data["id"]} joined the room`)
+      setPlayers(oldPlayers => [...oldPlayers, {"username": data["username"], "id": data["id"]}])
+    });
+
+
+    socket.on('add-to-hand', function(card) {
+      setHand(oldCards => [...oldCards, card])
     })
 
-    function receivedMessage(message) {
-      setMessages(oldMsgs => [...oldMsgs, message])
-    }
+    socket.on('add-to-stash', function(card) {
+      setStash(card)
+    })
 
-    return () => socket.close()
-  }, [])
-
-
-
-
-
-
-  /*
-  if (socket !== undefined)
-  {
-    socket.on('joined', function(data) {
-      var p = $('<p class="player"></p>');
-      p.html(data["username"]+'#'+data["id"]);
-      $("#players").append(p)
-    });
-
-    socket.on('add-to-hand', function(data) {
-      var card = create_card(data['color'], data['number']);
-      card.attr("class", 'card in-hand')
-
-      card.on('click', function () {
-        socket.emit("play-card", {'id':id, 'room': roomId, 'color':data['color'], 'number':data['number']})
-        this.remove();
-      });
-
-      $("#hand").append(card)
-    });
-
-
+    /*
     socket.on('add-to-stash', function(data) {
       var card = create_card(data['color'], data['number']);
       $("#stash").children().remove()
@@ -77,23 +77,38 @@ const Room = ({match, location}) => {
       card.html(number)
       card.css("background-color", colors[color]);
       return card;
-    }
-  }
-  */
+    }*/
 
-  /*
 
-  */
+
+    return () => socket.close()
+  }, [])
+
+
+  //<Player username={player.username} id={player.id}/>
 
   return (
     <div>
       <h1>Room {roomId}</h1>
       <Link to="/">Go Back</Link>
-      <button onClick={() => {socket.emit("message", {"msg":"this is a message from react", "roomId":roomId}); console.log("sent message")}}>Send Message</button>
 
-      {messages.map(message => {
-        return (<h1>{message}</h1>)
-      })}
+      <div id="players">
+        {players.map(player => {
+          return <Player username={player.username} id={player.id}/>
+        })}
+      </div>
+
+      <div id="stash">
+        <Card color={stash.color} number={stash.number}/>
+      </div>
+
+      <div id="hand">
+        {hand.map(card => {
+          return <Card color={card.color} number={card.number}/>
+        })}
+      </div>
+
+
     </div>
   );
 

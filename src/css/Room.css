@@ -7,17 +7,19 @@
   opacity: 0.8;
 }
 
+#hand{
+  position: fixed;
+  width: 100%;
+  bottom: 150px;
+}
+
 .card{
   display:inline;
   border: 1px solid #CCC;
-  padding: calc(1820px / 20) calc(1214px / 20);
+  padding: calc(125px) calc(65px);
+  border-radius: 15px;
 }
 
 .card:hover{
   opacity: 80%;
-}
-
-#hand{
-  position:fixed;
-  width:100%;
 }
