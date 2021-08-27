@@ -1,8 +1,9 @@
 import random
+from dataclasses import dataclass
 
 class Deck(list):
     def __init__(self, *args):
-        list.__init__(self, *args)
+        super().__init__(self, *args)
         self.generate_deck()
 
     def generate_deck(self):
@@ -26,13 +27,7 @@ class Deck(list):
         return cards
 
 
+@dataclass(frozen=True, order=True)
 class Card:
-    def __init__(self, color, number):
-        self.color = color
-        self.number = number
-
-    def to_json(self):
-        return {'color': self.color, 'number': self.number}
-
-    def __repr__(self):
-        return f"Card - {self.color} {self.number}"
+    color: str
+    number: int
