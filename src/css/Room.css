@@ -1,0 +1,23 @@
+.player{
+  background-color:grey;
+  width: 400px;
+}
+
+.player:hover{
+  opacity: 0.8;
+}
+
+.card{
+  display:inline;
+  border: 1px solid #CCC;
+  padding: calc(1820px / 20) calc(1214px / 20);
+}
+
+.card:hover{
+  opacity: 80%;
+}
+
+#hand{
+  position:fixed;
+  width:100%;
+}

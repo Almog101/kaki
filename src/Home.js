@@ -1,4 +1,5 @@
 import MainMenu from './MainMenu.js';
+import './css/Home.css';
 import Background from './Background.js';
 import React, {useEffect, useState} from 'react';
 import { Link } from 'react-router-dom';
