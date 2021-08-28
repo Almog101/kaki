@@ -2,8 +2,7 @@ import random
 from dataclasses import dataclass
 
 class Deck(list):
-    def __init__(self, *args):
-        super().__init__(self, *args)
+    def __init__(self):
         self.generate_deck()
 
     def generate_deck(self):

@@ -12,17 +12,11 @@ app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
 rooms = {}
 
-@app.route("/index")
-@app.route("/")
-def main():
-    return jsonify(status=200, data="Hello User")
-
-
 @app.route("/room/<room_id>")
 def room(room_id):
     if not room_id in rooms:
         return jsonify(status=400, response="Room does not exist")
-    return jsonify(status=200, room=rooms[room_id].json())
+    return jsonify(status=200, room = rooms[room_id].data())
 
 @app.route("/get-rooms")
 def get_rooms():
@@ -32,11 +26,11 @@ def get_rooms():
 
 @app.route("/create-room")
 def create_room():
-    id = get_uniqe_id(rooms, 5)
-    room = Room(id = id)
-    rooms[id] = room
+    room = Room()
+    rooms[room.id] = room
+    print(rooms)
 
-    return jsonify(status=200, roomId=id)
+    return jsonify(status=200, roomId=room.id)
 
 # SocketIO functions
 
@@ -48,12 +42,12 @@ def join(data):
     if 'id' not in data:
         return -1
 
-    id = data['id']
-
     if room_id not in rooms:
         return -1
 
-    print("player joined room", room_id)
+    id = data['id']
+
+    print(f"{username}#{id}", "joined room", room_id)
 
     room = rooms[room_id]
     new_player = Player(username, id)
@@ -70,9 +64,9 @@ def join(data):
 
 @socketio.on('play-card')
 def play_card(data):
-    color = data['color']
-    number = data['number']
-    room_id = data['room']
+    player_id, room_id, color, number = data.values()
+
+    rooms[room_id].current_card = Card(color=color, number=number)
 
     emit("add-to-stash", {"color": color, "number": number}, to=room_id)
 

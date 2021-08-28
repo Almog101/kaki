@@ -9,7 +9,7 @@ let playerId;
 
 const Player = ({username, id}) => {
   return (
-    <div class="player">
+    <div className="player">
       <p>{username}#{id}</p>
       <p>Number of cards: ?</p>
     </div>
@@ -24,7 +24,7 @@ const Card = ({color, number}) => {
   }
 
   return (
-    <div class="card" onClick={() => {play()} } style={{backgroundColor: colors[color]}}>{number}</div>
+    <div className="card" onClick={() => {play()} } style={{backgroundColor: colors[color]}}>{number}</div>
   )
 }
 
@@ -38,9 +38,21 @@ const Room = ({match, location}) => {
   roomId = match.params.id;
 
   let count = 0;
-  //fetch(`/room/${roomId}`).then(res => res.json().then(data => setRoom(data)))
+
+
+  function add_player_to_list(username, id) {
+      setPlayers(oldPlayers => [...oldPlayers, {"username": username, "id": id}])
+  }
 
   useEffect(() => {
+
+    fetch(`/room/${roomId}`).then(
+      res => res.json().then(
+        room_data => {room_data.room.players.forEach(player => add_player_to_list(player)); setStash(room_data.room.current_card); console.log(room_data);}
+      )
+    )
+
+
     socket = io("http://localhost:5000");
 
     socket.on('connect', () => {
@@ -48,12 +60,11 @@ const Room = ({match, location}) => {
       socket.emit('join', {"room": roomId, 'username': "username", 'id':playerId});
     });
 
-
     socket.on('joined', function(data) {
       console.log(`player ${data["username"]}#${data["id"]} joined the room`)
-      setPlayers(oldPlayers => [...oldPlayers, {"username": data["username"], "id": data["id"]}])
+      add_player_to_list(data["username"], data["id"])
+      //setPlayers(oldPlayers => [...oldPlayers, {"username": data["username"], "id": data["id"]}])
     });
-
 
     socket.on('add-to-hand', function(card) {
       setHand(oldCards => [...oldCards, card])
@@ -62,24 +73,6 @@ const Room = ({match, location}) => {
     socket.on('add-to-stash', function(card) {
       setStash(card)
     })
-
-    /*
-    socket.on('add-to-stash', function(data) {
-      var card = create_card(data['color'], data['number']);
-      $("#stash").children().remove()
-      $("#stash").append(card)
-    });
-
-
-    function create_card(color ,number)
-    {
-      var card = $('<div class="card"></div>');
-      card.html(number)
-      card.css("background-color", colors[color]);
-      return card;
-    }*/
-
-
 
     return () => socket.close()
   }, [])
@@ -90,6 +83,7 @@ const Room = ({match, location}) => {
   return (
     <div>
       <h1>Room #{roomId}</h1>
+      <h3>{players.length} players</h3>
       <Link id="home-button" to="/">
          <img src="https://www.searchpng.com/wp-content/uploads/2019/02/Back-Arrow-Icon-PNG.png" alt='Go Back' width="150" height="150"/>
       </Link>
