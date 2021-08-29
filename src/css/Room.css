@@ -50,6 +50,7 @@ player-background-hover - #3c3c3c
   border-radius: 15px;
   color: white;
   font-size: 50px;
+  -webkit-transition: 0.2s;
 }
 
 #stash{
@@ -58,6 +59,13 @@ player-background-hover - #3c3c3c
   top: 30%;
 }
 
+#deck{
+  position: fixed;
+  left: 40%;
+  top: 30%;
+}
+
 .card:hover{
   opacity: 80%;
+  padding: calc(125px/1.4) calc(85px/1.4);
 }

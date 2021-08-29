@@ -24,7 +24,7 @@ class Room:
 
     def __post_init__(self):
         self.id = hex(hash(next(self.id_iter)))[2:]
-        self.current_card = self.deck.get_cards(1)
+        self.current_card = self.deck.get_cards(1)[0]
         self.current_player = 0
 
     def next_player(self):

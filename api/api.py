@@ -39,8 +39,6 @@ def join(data):
     if room_id not in rooms:
         return -1
 
-    print(f"{username}#{id}", "joined room", room_id)
-
     room = rooms[room_id]
 
     new_player = Player(id, username)
@@ -54,7 +52,6 @@ def join(data):
     if len(room.players) == 1:
         room.current_player = new_player.id
         emit("set-current-player", new_player.details(), to=room_id)
-        print("current player", new_player)
 
 
     for card in new_player.hand:
@@ -64,13 +61,27 @@ def join(data):
 @socketio.on('play-card')
 def play_card(data):
     player_id, room_id, color, number = data.values()
-    room = rooms[room_id]
+    if room_id not in rooms:
+        return -1
 
+    room = rooms[room_id]
     room.current_card = Card(color=color, number=number)
     emit("add-to-stash", {"color": color, "number": number}, to=room_id)
 
     room.next_player()
-    print(room.players[room.current_player].details())
+    emit("set-current-player", room.players[room.current_player].details(), to=room_id)
+
+@socketio.on('draw-card')
+def draw_card(data):
+    player_id, room_id = data.values()
+    if room_id not in rooms:
+        return -1
+
+    room = rooms[room_id]
+    new_card = room.deck.get_cards(1)[0]
+    emit("add-to-hand", asdict(new_card))
+
+    room.next_player()
     emit("set-current-player", room.players[room.current_player].details(), to=room_id)
 
 
@@ -84,7 +95,6 @@ def disconnected(data):
         return -1
 
     del rooms[room_id].players[id]
-    print(f"{username}#{id} disconnected")
     emit("player-disconnected", rooms[room_id].players[id].details(), to=room_id)
 
 if __name__ == '__main__':

@@ -12,21 +12,28 @@ const Player = ({current, username, id}) => {
     <div className={ (current) ? "player current" : "player"}>
       <p>{username}#{id}</p>
       <p>Number of cards: ?</p>
-
-
     </div>
   )
 }
 
-const Card = ({color, number}) => {
-  const colors = {"Red": "#e5676b", "Green": "#a4ca7b", "Blue": "#009bd4", "Yellow": "#f9cd61"}
+const Card = ({inhand, isdeck=false, color, number}) => {
+  const colors = {"Red": "#e5676b", "Green": "#a4ca7b", "Blue": "#009bd4", "Yellow": "#f9cd61", "Brown": "#1d140e"}
 
   function play() {
-    socket.emit("play-card", {'id': playerId, 'room': roomId, 'color': color, 'number': number})
+    if (inhand) {
+      socket.emit("play-card", {'id': playerId, 'room': roomId, 'color': color, 'number': number})
+    }
+    else {
+      console.log("You can't click on that dumby");
+    }
+  }
+
+  function draw() {
+    socket.emit("draw-card", {'id': playerId, 'room': roomId})
   }
 
   return (
-    <div className="card" onClick={() => {play()} } style={{backgroundColor: colors[color]}}>{number}</div>
+    <div className="card" onClick={() => {if(isdeck){draw()}else{play()}} } style={{backgroundColor: colors[color]}}>{number}</div>
   )
 }
 
@@ -34,7 +41,7 @@ const Card = ({color, number}) => {
 const Room = ({match, location}) => {
   const [players, setPlayers] = useState([]);
   const [hand, setHand] = useState([]);
-  const [stash, setStash] = useState({"color": "Red", "number": 4});
+  const [stash, setStash] = useState({});
   const [currentPlayer, setCurrentPlayer] = useState(0);
 
   let username = sessionStorage.getItem("username");
@@ -52,9 +59,9 @@ const Room = ({match, location}) => {
     }
 
     window.addEventListener('beforeunload', sendDisconnect)
-    /*return () => {
+    return () => {
       window.removeEventListener('beforeunload', sendDisconnect)
-    }*/
+    }
   }, [])
 
 
@@ -62,7 +69,6 @@ const Room = ({match, location}) => {
     fetch(`/room/${roomId}`).then(
       res => res.json().then(
         room_data => {
-          console.log(room_data);
           if (room_data.status === 400) {
             window.location = "/";
           }
@@ -121,10 +127,6 @@ const Room = ({match, location}) => {
     return () => socket.close()
   }, [])
 
-
-
-
-
   //<Player username={player.username} id={player.id}/>
 
   return (
@@ -143,14 +145,17 @@ const Room = ({match, location}) => {
         })}
       </div>
 
+      <div id="deck">
+        <Card inhand={false} isdeck={true} color={"Brown"} number={"≡"}/>
+      </div>
       <div id="stash">
-        <Card color={stash.color} number={stash.number}/>
+        {(stash === {}) ? "" : <Card inhand={false} color={stash.color} number={stash.number}/>}
       </div>
 
       <div id="hand">
         {
           hand.map((card, index) => {
-          return <Card key={index} color={card.color} number={card.number}/>
+          return <Card inhand={true} key={index} color={card.color} number={card.number}/>
         })}
       </div>
 
