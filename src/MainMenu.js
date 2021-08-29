@@ -1,3 +1,5 @@
+import React, {useEffect} from 'react';
+
 const MainMenu = ()  => {
 
   const createRoom = () => {
@@ -8,7 +10,7 @@ const MainMenu = ()  => {
     <div className="MainMenu">
       <h1>Kaki - knock of Taki (Jewish Version of Uno)</h1>
 
-      <input type="text" id="username" name="username" placeholder="Enter Username"/>
+      <input type="text" onChange={(e) => {sessionStorage.setItem("username", e.target.value)}} id="username" name="username" placeholder="Enter Username"/>
       <button onClick={() =>{createRoom()}}>Create Room</button>
     </div>
   );

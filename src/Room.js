@@ -36,6 +36,11 @@ const Room = ({match, location}) => {
   const [stash, setStash] = useState({"color": "Red", "number": 4});
 
   roomId = match.params.id;
+  let username = sessionStorage.getItem("username");
+  if (username === undefined || username === "") {
+    localStorage.setItem("username", "noob");
+    username = "noob";
+  }
 
   let count = 0;
 
@@ -52,6 +57,9 @@ const Room = ({match, location}) => {
       )
     )
 
+    function add_player_to_list(username, id) {
+        setPlayers(oldPlayers => [...oldPlayers, {"username": username, "id": id}])
+    }
 
     socket = io("http://localhost:5000");
 
