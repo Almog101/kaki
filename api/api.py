@@ -28,7 +28,6 @@ def get_rooms():
 def create_room():
     room = Room()
     rooms[room.id] = room
-    print(rooms)
 
     return jsonify(status=200, roomId=room.id)
 
@@ -36,27 +35,27 @@ def create_room():
 
 @socketio.on('join')
 def join(data):
-    room_id = data['room']
-    username = data['username']
-
-    if 'id' not in data:
-        return -1
-
+    room_id, username, id = data.values()
     if room_id not in rooms:
         return -1
-
-    id = data['id']
 
     print(f"{username}#{id}", "joined room", room_id)
 
     room = rooms[room_id]
-    new_player = Player(username, id)
-    new_player.hand = room.deck.get_cards(STARTING_CARDS)
-    room.players[id] = new_player
 
+    new_player = Player(id, username)
+    new_player.hand = room.deck.get_cards(STARTING_CARDS)
+
+    room.players[id] = new_player
     join_room(room_id)
 
-    emit("joined", {"username": username, "id": id}, to=room_id)
+    emit("joined", new_player.details(), to=room_id)
+
+    if len(room.players) == 1:
+        room.current_player = new_player.id
+        emit("set-current-player", new_player.details(), to=room_id)
+        print("current player", new_player)
+
 
     for card in new_player.hand:
         emit("add-to-hand", asdict(card))
@@ -65,10 +64,15 @@ def join(data):
 @socketio.on('play-card')
 def play_card(data):
     player_id, room_id, color, number = data.values()
+    room = rooms[room_id]
 
-    rooms[room_id].current_card = Card(color=color, number=number)
-
+    room.current_card = Card(color=color, number=number)
     emit("add-to-stash", {"color": color, "number": number}, to=room_id)
+
+    room.next_player()
+    print(room.players[room.current_player].details())
+    emit("set-current-player", room.players[room.current_player].details(), to=room_id)
+
 
 # Finish dissconecting
 

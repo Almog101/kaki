@@ -7,11 +7,13 @@ let socket
 let roomId
 let playerId;
 
-const Player = ({username, id}) => {
+const Player = ({current, username, id}) => {
   return (
-    <div className="player">
+    <div className={ (current) ? "player current" : "player"}>
       <p>{username}#{id}</p>
       <p>Number of cards: ?</p>
+
+
     </div>
   )
 }
@@ -30,19 +32,17 @@ const Card = ({color, number}) => {
 
 
 const Room = ({match, location}) => {
-  const [room, setRoom] = useState();
   const [players, setPlayers] = useState([]);
   const [hand, setHand] = useState([]);
   const [stash, setStash] = useState({"color": "Red", "number": 4});
+  const [currentPlayer, setCurrentPlayer] = useState(0);
 
-  roomId = match.params.id;
   let username = sessionStorage.getItem("username");
   if (username === undefined || username === "") {
     localStorage.setItem("username", "noob");
     username = "noob";
   }
 
-  let count = 0;
   roomId = match.params.id;
 
   useEffect(() => {
@@ -61,7 +61,18 @@ const Room = ({match, location}) => {
   useEffect(() => {
     fetch(`/room/${roomId}`).then(
       res => res.json().then(
-        room_data => {room_data.room.players.forEach(player => add_player_to_list(player)); setStash(room_data.room.current_card); console.log(room_data);}
+        room_data => {
+          console.log(room_data);
+          if (room_data.status === 400) {
+            window.location = "/";
+          }
+          room_data.room.players.forEach(player => add_player_to_list(player[0], player[1]));
+          setStash(room_data.room.current_card);
+          if (room_data.room.current_player !== 0)
+          {
+            setCurrentPlayer(room_data.room.current_player);
+          }
+        }
       )
     )
 
@@ -73,13 +84,12 @@ const Room = ({match, location}) => {
 
     socket.on('connect', () => {
       playerId = socket.io.engine.id;
-      socket.emit('join', {"room": roomId, 'username': "username", 'id':playerId});
+      socket.emit('join', {"room": roomId, 'username': username, 'id':playerId});
     });
 
     socket.on('joined', function(data) {
       console.log(`player ${data["username"]}#${data["id"]} joined the room`)
       add_player_to_list(data["username"], data["id"])
-      //setPlayers(oldPlayers => [...oldPlayers, {"username": data["username"], "id": data["id"]}])
     });
 
     socket.on('add-to-hand', function(card) {
@@ -90,8 +100,29 @@ const Room = ({match, location}) => {
       setStash(card)
     })
 
+    socket.on('player-disconnected', function(player) {
+      console.log(`${player.username}# ${player.id} disconnected`);
+      var newPlayers = [];
+
+      players.forEach((p) =>{
+        if (p.id !== player.id)
+        {
+          newPlayers.push(p);
+        }
+      })
+
+      setPlayers(newPlayers);
+    })
+
+    socket.on('set-current-player', function(player) {
+        setCurrentPlayer(player);
+    })
+
     return () => socket.close()
   }, [])
+
+
+
 
 
   //<Player username={player.username} id={player.id}/>
@@ -100,13 +131,15 @@ const Room = ({match, location}) => {
     <div>
       <h1>Room #{roomId}</h1>
       <h3>{players.length} players</h3>
+      <p>{currentPlayer.username}#{currentPlayer.id}</p>
+
       <Link id="home-button" to="/">
          <img src="https://www.searchpng.com/wp-content/uploads/2019/02/Back-Arrow-Icon-PNG.png" alt='Go Back' width="150" height="150"/>
       </Link>
 
       <div id="players">
         {players.map(player => {
-          return <Player username={player.username} id={player.id}/>
+          return <Player current={currentPlayer.id === player.id} key={`${player.username}#${player.id}`} username={player.username} id={player.id}/>
         })}
       </div>
 
@@ -115,8 +148,9 @@ const Room = ({match, location}) => {
       </div>
 
       <div id="hand">
-        {hand.map(card => {
-          return <Card color={card.color} number={card.number}/>
+        {
+          hand.map((card, index) => {
+          return <Card key={index} color={card.color} number={card.number}/>
         })}
       </div>
 

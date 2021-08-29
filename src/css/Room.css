@@ -2,6 +2,15 @@ body{
   background-color: #e4eddf;
 }
 
+/*
+Dark Mode:
+background - #1b1b1b
+player-background - #272727
+player-background-hover - #3c3c3c
+
+*/
+
+
 #home-button{
   position: fixed;
   right: 1%;
@@ -9,21 +18,30 @@ body{
 }
 
 .player{
-  background-color: #B9CBC0;
+  background-color: #D0D9CC;
   padding: 5px 15px;
   width: 300px;
   border-radius: 10px;
+  -webkit-transition: 0.2s;
+  opacity:0.7;
 
+}
+
+.current{
+  background-color: pink;
 }
 
 .player:hover{
-  opacity: 0.8;
+  width: 310px;
+  opacity:1;
 }
+
 
 #hand{
   position: fixed;
   width: 100%;
   bottom: 20%;
+  left: 21%;
 }
 
 .card{
@@ -35,8 +53,9 @@ body{
 }
 
 #stash{
-  position: absolute;
+  position: fixed;
   left: 50%;
+  top: 30%;
 }
 
 .card:hover{
