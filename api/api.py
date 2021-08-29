@@ -70,5 +70,18 @@ def play_card(data):
 
     emit("add-to-stash", {"color": color, "number": number}, to=room_id)
 
+# Finish dissconecting
+
+@socketio.on('disconnect-from-room')
+def disconnected(data):
+    room_id, username, id = data.values()
+
+    if room_id not in rooms:
+        return -1
+
+    del rooms[room_id].players[id]
+    print(f"{username}#{id} disconnected")
+    emit("player-disconnected", rooms[room_id].players[id].details(), to=room_id)
+
 if __name__ == '__main__':
     socketio.run(app, debug=True)

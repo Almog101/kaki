@@ -9,6 +9,9 @@ class Player:
     username: str
     hand: list = field(default_factory=list)
 
+    def details(self):
+        return {"username": self.username, "id": self.id}
+
 
 @dataclass()
 class Room:

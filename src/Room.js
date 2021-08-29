@@ -43,14 +43,22 @@ const Room = ({match, location}) => {
   }
 
   let count = 0;
-
-
-  function add_player_to_list(username, id) {
-      setPlayers(oldPlayers => [...oldPlayers, {"username": username, "id": id}])
-  }
+  roomId = match.params.id;
 
   useEffect(() => {
+    const sendDisconnect = e => {
+      socket.emit('disconnect-from-room', {"room": roomId, 'username': username, 'id':playerId});
+      console.log(socket, "disconnected");
+    }
 
+    window.addEventListener('beforeunload', sendDisconnect)
+    /*return () => {
+      window.removeEventListener('beforeunload', sendDisconnect)
+    }*/
+  }, [])
+
+
+  useEffect(() => {
     fetch(`/room/${roomId}`).then(
       res => res.json().then(
         room_data => {room_data.room.players.forEach(player => add_player_to_list(player)); setStash(room_data.room.current_card); console.log(room_data);}
