@@ -6,6 +6,7 @@ import './css/Room.css';
 let socket
 let roomId
 let playerId;
+let hands_length;
 
 const Player = ({current, username, id}) => {
   return (
@@ -16,8 +17,19 @@ const Player = ({current, username, id}) => {
   )
 }
 
-const Card = ({inhand, isdeck=false, color, number}) => {
+const Card = ({index=0, inhand=false, isdeck=false, color, number}) => {
   const colors = {"Red": "#e5676b", "Green": "#a4ca7b", "Blue": "#009bd4", "Yellow": "#f9cd61", "Brown": "#1d140e"}
+
+  let style = {
+    backgroundColor: colors[color],
+  }
+
+  if (inhand)
+  {
+    const start = 10;
+    const end = 90;
+    style["left"] = ((end-start)/hands_length * index + start).toFixed(1) + "%";
+  }
 
   function play() {
     if (inhand) {
@@ -33,7 +45,7 @@ const Card = ({inhand, isdeck=false, color, number}) => {
   }
 
   return (
-    <div className="card" onClick={() => {if(isdeck){draw()}else{play()}} } style={{backgroundColor: colors[color]}}>{number}</div>
+    <div className="card" onClick={() => {if(isdeck){draw()}else{play()}} } style={style}>{number}</div>
   )
 }
 
@@ -127,7 +139,7 @@ const Room = ({match, location}) => {
     return () => socket.close()
   }, [])
 
-  //<Player username={player.username} id={player.id}/>
+  hands_length = hand.length;
 
   return (
     <div>
@@ -146,16 +158,16 @@ const Room = ({match, location}) => {
       </div>
 
       <div id="deck">
-        <Card inhand={false} isdeck={true} color={"Brown"} number={"≡"}/>
+        <Card isdeck={true} color={"Brown"} number={"≡"}/>
       </div>
       <div id="stash">
-        {(stash === {}) ? "" : <Card inhand={false} color={stash.color} number={stash.number}/>}
+        {(stash === {}) ? "" : <Card color={stash.color} number={stash.number}/>}
       </div>
 
       <div id="hand">
         {
           hand.map((card, index) => {
-          return <Card inhand={true} key={index} color={card.color} number={card.number}/>
+          return <Card index={index} inhand={true} key={index} color={card.color} number={card.number}/>
         })}
       </div>
 
